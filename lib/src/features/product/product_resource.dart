@@ -21,7 +21,8 @@ class ProductResource extends Resource {
 
     final result =
         await database.query('SELECT id, nome, preco, unidade FROM "Product"');
-    return Response.ok(jsonEncode(result));
+    final productMap = result.map((element) => element['Product']).first;
+    return Response.ok(jsonEncode(productMap));
   }
 
   FutureOr<Response> _getProductByid(ModularArguments arguments) {
