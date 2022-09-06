@@ -12,7 +12,7 @@ generator client {
 model Product {
   id      Int         @id @default(autoincrement())
   nome    String      @unique
-  preco   String
+  preco   Int
   unidade String
   role    ProductRule @default(product)
 }

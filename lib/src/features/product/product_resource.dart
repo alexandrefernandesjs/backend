@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:backend/src/core/services/database/remote_database.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_modular/shelf_modular.dart';
 
@@ -14,8 +16,12 @@ class ProductResource extends Resource {
         Route.delete('/product/:id', _deteleProduct),
       ];
 
-  FutureOr<Response> _getAllProducts() {
-    return Response.ok('OK');
+  FutureOr<Response> _getAllProducts(Injector injector) async {
+    final database = injector.get<RemoteDatabase>();
+
+    final result =
+        await database.query('SELECT id, nome, preco, unidade FROM "Product"');
+    return Response.ok(jsonEncode(result));
   }
 
   FutureOr<Response> _getProductByid(ModularArguments arguments) {
