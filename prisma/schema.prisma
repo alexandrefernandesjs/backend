@@ -1,0 +1,21 @@
+// schema.prisma
+// schema.prisma
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Product {
+    id      Int    @id @default(autoincrement())
+    nome    String @unique
+    preco   String
+    unidade String
+}
+
+enum ProductRule {
+    manager
+}
