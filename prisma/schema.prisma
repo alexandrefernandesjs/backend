@@ -16,6 +16,19 @@ model Product {
   role    ProductRule @default(product)
 }
 
+model Client {
+  id     Int        @id @default(autoincrement())
+  nome   String     @unique
+  cpf    String
+  limite Int
+  cc     Int
+  role   ClientRule @default(client)
+}
+
 enum ProductRule {
   product
+}
+
+enum ClientRule {
+  client
 }
