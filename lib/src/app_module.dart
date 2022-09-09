@@ -1,5 +1,6 @@
 import 'package:backend/src/core/services/database/postgres/postgres_database.dart';
 import 'package:backend/src/core/services/database/remote_database.dart';
+import 'package:backend/src/features/clients/clients_resource.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf_modular/shelf_modular.dart';
 
