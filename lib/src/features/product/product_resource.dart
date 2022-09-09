@@ -19,10 +19,10 @@ class ProductResource extends Resource {
   FutureOr<Response> _getAllProducts(Injector injector) async {
     final database = injector.get<RemoteDatabase>();
 
-    final result =
-        await database.query('SELECT id, nome, preco, unidade FROM "Product"');
-    final productMap = result.map((element) => element['Product']).first;
-    return Response.ok(jsonEncode(productMap));
+    final result = await database
+        .query('SELECT id, nome, unidade, preco, role	FROM "Product";');
+    // final productMap = result.map((element) => element['Product']).first;
+    return Response.ok(jsonEncode(result));
   }
 
   FutureOr<Response> _getProductByid(
@@ -33,18 +33,46 @@ class ProductResource extends Resource {
         'SELECT id, nome, preco, unidade FROM "Product" WHERE id = @id;',
         variables: {'id': id});
     final productMap = result.map((element) => element['Product']).first;
-    return Response.ok(jsonEncode(result));
+    return Response.ok(jsonEncode(productMap));
   }
 
-  FutureOr<Response> _createProduct(ModularArguments arguments) {
-    return Response.ok('Create Product ${arguments.data}');
+  FutureOr<Response> _createProduct(
+      ModularArguments arguments, Injector injector) async {
+    final productParams = (arguments.data as Map).cast<String, dynamic>();
+    productParams.remove('id');
+
+    final database = injector.get<RemoteDatabase>();
+    final insertProduct = await database.query(
+        'INSERT INTO public."Product"(nome, unidade, preco)VALUES (@nome, @unidade, @preco) RETURNING id, nome, unidade, role, preco;',
+        variables: productParams);
+    final productMap = insertProduct.map((element) => element['Product']).first;
+
+    return Response.ok(jsonEncode(productMap));
   }
 
-  FutureOr<Response> _updateProduct(ModularArguments arguments) {
-    return Response.ok('Updated Prodduct ${arguments.params['id']}');
+  FutureOr<Response> _updateProduct(
+      ModularArguments arguments, Injector injector) async {
+    final productPArams = (arguments.data as Map).cast<String, dynamic>();
+
+    final columns = productPArams.keys
+        .where((key) => key != 'id' || key != 'role')
+        .map((key) => '$key=@$key')
+        .toList();
+    final database = injector.get<RemoteDatabase>();
+    final updateProduct = await database.query(
+        'UPDATE "Product"	SET ${columns.join(',')} WHERE id = @id RETURNING id, nome, unidade, role, preco;',
+        variables: productPArams);
+    final productMap = updateProduct.map((element) => element['Product']).first;
+
+    return Response.ok(jsonEncode(productMap));
   }
 
-  FutureOr<Response> _deteleProduct(ModularArguments arguments) {
-    return Response.ok('Deleted Product ${arguments.params['id']}');
+  FutureOr<Response> _deteleProduct(
+      ModularArguments arguments, Injector injector) async {
+    final id = arguments.params['id'];
+    final database = injector.get<RemoteDatabase>();
+    final result = await database
+        .query('DELETE FROM "Product" WHERE id = @id;', variables: {'id': id});
+    return Response.ok(jsonEncode({'message': 'deleted $id'}));
   }
 }
